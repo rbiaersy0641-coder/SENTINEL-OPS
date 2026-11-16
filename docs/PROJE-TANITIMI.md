@@ -1,27 +1,34 @@
-<!--projenin amacı-->
-SENTINEL OPS’u, güvenlik olaylarını ve tehdit uyarılarını takip edebileceğim bir SOC projesi olarak geliştiriyorum. Projem Node.js ve Express.js ile hazırladığım bir REST API’dir. Bu projede backend geliştirme, API tasarımı, CRUD işlemleri, kimlik doğrulama, yetkilendirme ve Postman testleri konularında öğrendiklerimi uyguluyorum.
-<!--Proje senaryosu-->
-Bir güvenlik ekibinin karşılaştığı şüpheli olayları kaydedip takip edebilmesini hedefliyorum. Olayları önem derecesine göre sınıflandırmak, inceleme durumlarını izlemek ve gerektiğinde müdahale görevleri oluşturmak istiyorum. Ayrıca olaylara yönelik görevleri çalışanlara atayarak bu görevlerin tamamlanma sürecini takip ediyorum.
-<!--Proje özellikleri-->
-- Güvenlik olaylarını ve tehdit uyarılarını takip etme
+# SENTINEL OPS — Güvenlik ve Görev Yönetimi REST API
+
+## Projenin Amacı
+
+SENTINEL OPS’u, güvenlik olaylarını ve tehdit uyarılarını takip etmeye yönelik bir REST API projesi olarak geliştiriyorum. Node.js ve Express.js kullandığım bu projede backend geliştirme, API tasarımı, CRUD işlemleri, kimlik doğrulama, yetkilendirme ve Postman testleri konularında öğrendiklerimi uyguluyorum.
+
+## Proje Senaryosu
+
+Bir güvenlik ekibinin karşılaştığı şüpheli olayları kaydedip takip etmesini hedefliyorum. Olayları önem derecesine ve inceleme durumuna göre listeliyorum. Olayların takibi için görevler oluşturuyor, bu görevleri çalışanlara atıyor ve tamamlanma durumlarını izliyorum.
+
+## Proje Özellikleri
+
+- Güvenlik olayı oluşturma ve olayları önem derecesi veya duruma göre listeleme
 - REST API uç noktaları üzerinden JSON veri alışverişi
-- Güvenlik olayları ve görevler için oluşturma, listeleme, detay görüntüleme, güncelleme ve silme işlemleri
+- Görevler için oluşturma, listeleme, detay görüntüleme, güncelleme ve silme işlemleri
 - Görevleri çalışanlara atama
 - Görevleri durum, öncelik, çalışan ve metin aramasına göre filtreleme
 - Görevleri sayfalama ve oluşturulma zamanına göre sıralama
-- İstek verilerini doğrulama
-- Gelen HTTP isteklerini kaydetme
+- İstek verilerini doğrulama ve HTTP isteklerini kaydetme
 - Başarısız giriş ve yetkisiz erişim gibi güvenlik olaylarını kaydetme
-- JWT ile kimlik doğrulama ve yöneticiye özel erişim
-- Görevlerin durumuna göre rapor oluşturma
-Teknolojiler ve veri saklama
-Projede Node.js, Express.js ve JavaScript kullanıyorum. API istek ve yanıtlarını JSON biçiminde hazırladım. Bu sürümde kullanıcı, çalışan ve görev verileri bellekte tutuluyor; sunucu yeniden başlatıldığında görev değişiklikleri başlangıç durumuna dönüyor.
-<!--Projeyi çalıştırma-->
-1. Proje klasöründe npm install komutunu çalıştırıyorum.
-2. .env dosyasında JWT_SECRET, ADMIN_USERNAME ve ADMIN_PASSWORD değerlerini tanımlıyorum. Yönetici parolasını en az 12 karakter belirliyorum ve gizli bilgileri paylaşmıyorum.
-3. Sunucuyu npm start komutuyla başlatıyorum. API http://localhost:3000 adresinde çalışıyor.
-4. /auth/login uç noktasından giriş yapıyorum. Dönen JWT’yi korumalı isteklerde Authorization: Bearer <token> başlığıyla kullanıyorum.
-<!--Projenin kapsamı-->
-Bu sürümde SENTINEL OPS’un temelini REST API, kimlik doğrulama, güvenlik kayıtları, görev atama ve raporlama özellikleri oluşturuyor. SOC paneli arayüzünü eklediğimde, API ile çalışan görsel bir katman olarak projeye dahil edeceğim.
+- JWT ile kimlik doğrulama; güvenlik kayıtlarını görüntülemek için yönetici yetkisi
+- Görev durumlarına göre rapor oluşturma
 
-Görev yönetimi özelliklerine ek olarak projeye temel bir siber güvenlik katmanı da ekledim. JWT ile kimlik doğrulaması yapıyorum; güvenlik olaylarını önem derecesi ve durum bilgisiyle listeleyip yeni olay oluşturabiliyorum. Kimlik doğrulama ve güvenlik kayıtlarını yalnızca yönetici yetkisiyle görüntülenebilir hâle getirdim. Bu katman, REST API’nin bir parçasıdır; projede web arayüzü bulunmaz.
+## Teknolojiler ve Veri Saklama
+
+Projede Node.js, Express.js ve JavaScript kullanıyorum. API istek ve yanıtlarını JSON biçiminde hazırladım. Kullanıcı, çalışan, görev ve güvenlik olayı verileri bu sürümde bellekte tutuluyor; sunucu yeniden başlatıldığında başlangıç verilerine dönüyor. Güvenlik loglarını `logs/security.log` dosyasına yazıyorum.
+
+## Kurulum ve Çalıştırma
+
+Proje klasöründe bağımlılıkları `npm.cmd install` komutuyla yüklüyorum. `.env` dosyasında `JWT_SECRET`, `ADMIN_USERNAME` ve `ADMIN_PASSWORD` değerlerini tanımladıktan sonra sunucuyu `npm.cmd start` komutuyla başlatıyorum. API `http://localhost:3000` adresinde çalışıyor. Giriş için `/auth/login` uç noktasını kullanıyor, dönen JWT’yi korumalı isteklerde Bearer Token olarak gönderiyorum.
+
+## Projenin Kapsamı
+
+Bu sürümde SENTINEL OPS’un kapsamını REST API, kimlik doğrulama, güvenlik kayıtları, güvenlik olayı takibi, görev atama ve raporlama oluşturuyor. Projede web arayüzü bulunmuyor.
