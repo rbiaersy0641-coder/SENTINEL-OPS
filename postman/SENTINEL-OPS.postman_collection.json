@@ -1,0 +1,423 @@
+{
+  "info": {
+    "name": "SENTINEL OPS - API ve CRUD Testleri",
+    "description": "Önce giriş yapın; token koleksiyon değişkenine kaydedilir. Zorunlu CRUD ve isteğe bağlı API isteklerini sırayla çalıştırabilirsiniz.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "admin_username",
+      "value": ""
+    },
+    {
+      "key": "admin_password",
+      "value": ""
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "taskId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "01 - API saglik kontrolu",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('API 200 doner', function () { pm.response.to.have.status(200); });",
+              "pm.test('JSON durum success', function () { pm.expect(pm.response.json().status).to.eql('success'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 - Yonetici girisi ve token kaydi",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"{{admin_username}}\",\n  \"password\": \"{{admin_password}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/auth/login",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Giris basarili', function () { pm.response.to.have.status(200); });",
+              "const data = pm.response.json();",
+              "pm.expect(data.token).to.be.a('string');",
+              "pm.collectionVariables.set('token', data.token);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 - Calisanlari listele",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/employees"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Calisan listesi 200 doner', function () { pm.response.to.have.status(200); });",
+              "pm.expect(pm.response.json().data.length).to.be.above(0);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 - Gorevleri listele",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/tasks"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Gorev listesi 200 doner', function () { pm.response.to.have.status(200); });",
+              "pm.expect(pm.response.json().data).to.be.an('array');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 - Gorevleri filtrele",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/tasks?priority=high&assigneeId=1"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Istek 200 doner', function () { pm.response.to.have.status(200); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 - Keyword ile gorev ara",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/tasks/search?keyword=API"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Istek 200 doner', function () { pm.response.to.have.status(200); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 - Calisana atanan gorevler",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/tasks/assignee/calisan1"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Istek 200 doner', function () { pm.response.to.have.status(200); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "08 - Tarihe gore sirala",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/tasks?sort=createdAt"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('En yeni gorev once listelenir', function () { pm.response.to.have.status(200); });",
+              "const rows = pm.response.json().data;",
+              "if (rows.length > 1) pm.expect(Date.parse(rows[0].createdAt)).to.be.at.least(Date.parse(rows[1].createdAt));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "09 - Tamamlanan raporu",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/reports/completed"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Completed report returns count', function () { pm.response.to.have.status(200); pm.expect(pm.response.json().count).to.be.a('number'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "10 - Bekleyen raporu",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/reports/pending"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Pending report returns count', function () { pm.response.to.have.status(200); pm.expect(pm.response.json().count).to.be.a('number'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "11 - Ozet raporu",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/reports/summary"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Summary report returns totals', function () { pm.response.to.have.status(200); pm.expect(pm.response.json().data.total).to.be.a('number'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "12 - Gorev olustur",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Postman teslim testi\",\n  \"description\": \"Test icin olusturulan gorev\",\n  \"status\": \"pending\",\n  \"priority\": \"high\",\n  \"assigneeId\": 1\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/tasks"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Gorev 201 ile olusturulur', function () { pm.response.to.have.status(201); });",
+              "const data = pm.response.json().data;",
+              "pm.expect(data.assigneeId).to.eql(1);",
+              "pm.collectionVariables.set('taskId', data.id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "13 - Gorev detayini getir",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/tasks/{{taskId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Gorev detayi 200 doner', function () { pm.response.to.have.status(200); });",
+              "pm.expect(pm.response.json().data.id).to.eql(Number(pm.collectionVariables.get('taskId')));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "14 - Gorevi guncelle",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"completed\",\n  \"priority\": \"medium\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/tasks/{{taskId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Gorev 200 ile guncellenir', function () { pm.response.to.have.status(200); });",
+              "pm.expect(pm.response.json().data.status).to.eql('completed');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "15 - Gorevi sil",
+      "request": {
+        "method": "DELETE",
+        "url": "{{baseUrl}}/tasks/{{taskId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Gorev 200 ile silinir', function () { pm.response.to.have.status(200); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "16 - Silinen gorev artik bulunamaz",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/tasks/{{taskId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Silinen gorev 404 doner', function () { pm.response.to.have.status(404); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "17 - Gecersiz calisana atama reddedilir",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Gecersiz atama testi\",\n  \"assigneeId\": 9999\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/tasks"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Gecersiz assignee 400 doner', function () { pm.response.to.have.status(400); });"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
